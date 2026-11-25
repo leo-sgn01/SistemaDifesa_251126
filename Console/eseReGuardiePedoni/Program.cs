@@ -1,4 +1,5 @@
-﻿using System;
+﻿using eseReGuardiePedoni;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -10,147 +11,240 @@ namespace eseReGuardiePedoni
 {
     internal class Program
     {
+        static List<Guardia> listaGuardie = new List<Guardia>();
+        static List<Pedone> listaPedoni = new List<Pedone>();
+        static List<string> listaComandi = new List<string>();
+        static List<string> registro = new List<string>();
+        static Re re = null;
+        static int indexComCorrente = 0;
+
         static void Main(string[] args)
         {
-            List<Guardia> listaGuardie = new List<Guardia>();
-            List<Pedone> listaPedoni = new List<Pedone>();
-            List<string> listaComandi = new List<string>();
-            Re re = null;
             string percorsoFileIn = "commands.txt";
 
             File.WriteAllText("output.txt", string.Empty);
-            
-            if(File.Exists(percorsoFileIn))
+
+            if(!File.Exists(percorsoFileIn))
             {
-                string[] linee = File.ReadAllLines(percorsoFileIn);
+                WriteLine($"ERRORE: file '{percorsoFileIn}' non trovato");
+                return;
+            }
 
-                if(linee.Length > 0)
+            CaricaFile(percorsoFileIn);
+
+
+            int scelta;
+            do
+            {
+                Clear();
+                StampaInterfacciaConsole();
+
+                WriteLine("\n Scegli un azione:");
+                WriteLine("1. Esegui un passo");
+                WriteLine("2. Esegui tutto");
+                WriteLine("0. Esci");
+                Write("Scelta: ");
+
+                while(!int.TryParse(ReadLine(), out scelta) || (scelta < 0 && scelta > 2))
                 {
-                    string nomeRe = linee[0].Trim();
-                    re = new Re(nomeRe);
-                    WriteLine($"Caricato re: {nomeRe}");
+                    WriteLine("ERRORE: scelta non valida");
+                    Write("Scelta (0-2): ");
                 }
 
-                if(linee.Length > 1 && !string.IsNullOrWhiteSpace(linee[1]))
+                WriteLine("-- SISTEMA DI DIFESA ATTIVATO --");
+
+                switch(scelta)
                 {
-                    string[] nomiGuardie = linee[1].Split(new[] { ' ' });
-                    foreach(var nome in nomiGuardie)
+                    case 1:
+                        EseguiProssimoComando();
+                        break;
+
+                    case 2:
+                        EseguiTutto();
+                        break;
+                }
+            } while (scelta != 0);
+        }
+
+        static void CaricaFile(string percorso)
+        {
+            string[] linee = File.ReadAllLines(percorso);
+
+            if (linee.Length > 0)
+                re = new Re(linee[0].Trim());
+
+            if (linee.Length > 1 && !string.IsNullOrWhiteSpace(linee[1]))
+            {
+                string[] nomiGuardie = linee[1].Split(new[] { ' ' });
+                foreach (var nome in nomiGuardie)
+                {
+                    listaGuardie.Add(new Guardia(nome));
+                }
+            }
+
+            if (linee.Length > 2 && !string.IsNullOrWhiteSpace(linee[2]))
+            {
+                string[] nomiPedoni = linee[2].Split(new[] { ' ' });
+                foreach (var nome in nomiPedoni)
+                {
+                    listaPedoni.Add(new Pedone(nome));
+                }
+            }
+
+            for (int i = 3; i < linee.Length; i++)
+            {
+                string cmd = linee[i].Trim();
+                if (!string.IsNullOrWhiteSpace(cmd))
+                {
+                    listaComandi.Add(cmd);
+                    if (cmd == "End")
                     {
-                        listaGuardie.Add(new Guardia(nome));
+                        break;
                     }
-                    WriteLine($"Caricate {listaGuardie.Count} guardie");
                 }
+            }
+        }
 
-                if(linee.Length > 2 && !string.IsNullOrWhiteSpace(linee[2]))
+        static void EseguiComando(string cmd)
+        {
+            registro.Add($"> {cmd}");
+
+            if(cmd == "Attacca Re" && re != null)
+            {
+                registro.Add(re.Attacco());
+                foreach(var g in listaGuardie)
                 {
-                    string[] nomiPedoni = linee[2].Split(new[] {' '});
-                    foreach(var nome in nomiPedoni)
+                    string ris = g.Attacco();
+                    if(!string.IsNullOrWhiteSpace(ris))
+                        registro.Add(ris);
+                }
+                foreach(var p in listaPedoni)
+                {
+                    string ris = p.Attacco();
+                    if(!string.IsNullOrWhiteSpace(ris))
+                        registro.Add(ris);
+                }
+            }
+            else if (cmd.StartsWith("Cattura "))
+            {
+                string nomeCatturato = cmd.Substring(8).Trim();
+                Guardia gRimossa = null;
+                Pedone pRimosso = null;
+
+                foreach(var guardia in listaGuardie)
+                {
+                    if(guardia.nome ==  nomeCatturato)
                     {
-                        listaPedoni.Add(new Pedone(nome));
+                        gRimossa = guardia;
+                        break;
                     }
-                    WriteLine($"Caricati {listaPedoni.Count} pedoni");
                 }
-
-                for(int i = 3; i < linee.Length; i++)
+                if(gRimossa != null)
                 {
-                    string comando = linee[i].Trim();
-                    if(!string.IsNullOrWhiteSpace(comando))
+                    listaGuardie.Remove(gRimossa);
+                } else
+                {
+                    foreach(var pedone in listaPedoni)
                     {
-                        listaComandi.Add(comando);
-                        if (comando == "End")
+                        if(pedone.nome == nomeCatturato)
                         {
+                            pRimosso = pedone;
                             break;
                         }
                     }
-                }
-                WriteLine($"Caricati {listaComandi.Count} comandi");
 
-                WriteLine();    
-                WriteLine($"--- ATTIVAZIONE SISTEMA DI DIFESA ---");
-
-                foreach (var com in listaComandi)
-                {
-                    WriteLine($"> {com}");
-
-                    if (com == "Attacca Re" && re != null)
+                    if(pRimosso != null)
                     {
-                        Write(re.Attacco());
-
-                        foreach (var guardia in listaGuardie)
-                        {
-                            string risulG = guardia.Attacco();
-                            if (!string.IsNullOrWhiteSpace(risulG))
-                            {
-                                Write(risulG);
-                            }
-                        }
-                        foreach (var ped in listaPedoni)
-                        {
-                            string risulP = ped.Attacco();
-                            if (!string.IsNullOrWhiteSpace(risulP))
-                            {
-                                Write(risulP);
-                            }
-                        }
-
-                        WriteLine();
-                    }
-                    else if (com.StartsWith("Cattura "))
-                    {
-                        WriteLine();
-
-                        string nomeCatturato = com.Substring(8).Trim();
-                        Guardia guardiaRimossa = null;
-                        Pedone pedoneRimosso = null;
-
-                        foreach (var g in listaGuardie)
-                        {
-                            if(g.nome == nomeCatturato)
-                            {
-                                guardiaRimossa = g;
-                                break;
-                            }
-                        }
-
-                        if (guardiaRimossa != null)
-                        {
-                            listaGuardie.Remove(guardiaRimossa);
-                        }
-                        else
-                        {
-                            foreach (var p in listaPedoni)
-                            {
-                                if (p.nome == nomeCatturato)
-                                {
-                                    pedoneRimosso = p;
-                                    break;
-                                }
-                            }
-
-                            if(pedoneRimosso != null)
-                            {
-                                listaPedoni.Remove(pedoneRimosso);
-                            }
-                        }
-                    } else if(com == "End")
-                    {
-                        WriteLine("Attacchi terminati: sistema di difesa in pausa");
-                        break;
-                    } else
-                    {
-                        WriteLine("ERRORE: Comando non valido");
+                        listaPedoni.Remove(pRimosso);
                     }
                 }
-
-                WriteLine("-- SISTEMA DI DIFESA DISATTIVATO --");
+            }
+            else if (cmd == "End")
+            {
+                registro.Add("Sistema di difesa in pausa");
             }
             else
             {
-                WriteLine($"ERRORE: Il file '{percorsoFileIn}' non è stato trovato");
+                registro.Add("Comando non valido");
+            }
+        }
+
+        static void EseguiProssimoComando()
+        {
+            if(indexComCorrente < listaComandi.Count)
+            {
+                string cmd = listaComandi[indexComCorrente];
+                indexComCorrente++;
+                EseguiComando(cmd);
+
+                if(cmd == "End")
+                {
+                    indexComCorrente = listaComandi.Count;
+                }
+            }
+            else
+            {
+                registro.Add("Nessun altro comando da eseguire");
+            }
+        }
+
+        static void EseguiTutto()
+        {
+            while(indexComCorrente < listaComandi.Count)
+            {
+                string cmd = listaComandi[indexComCorrente];
+                bool fine = (cmd == "End");
+
+                EseguiProssimoComando();
+
+                Clear();
+                StampaInterfacciaConsole();
+
+                if (fine)
+                    break;
             }
 
-            WriteLine("\nPremi un tasto per terminare..");
+            WriteLine("\n Premi un tasto per continuare..");
             ReadKey();
+        }
+
+        static void StampaInterfacciaConsole()
+        {
+            WriteLine("========== REGNO DI ASTERON ==========");
+            WriteLine($"Re: {re.nome}");
+
+            Write("Guardie disponibili: ");
+            foreach(var guardia in listaGuardie)
+            {
+                Write($"{guardia.nome}");
+            }
+            WriteLine();
+
+            Write("Pedoni disponibili: ");
+            foreach(var pedone in listaPedoni)
+            {
+                Write($"{pedone.nome}");
+            }
+            WriteLine();
+
+            WriteLine("ELENCO COMANDI:");
+            for(int i = 0; i < listaComandi.Count; i++)
+            {
+                if(i == indexComCorrente)
+                {
+                    WriteLine($"--> {listaComandi[i]}");
+                } else
+                {
+                    WriteLine($" {listaComandi[i]}");
+                }
+            }
+
+            WriteLine("\n -- REGISTRO --");
+            foreach(var r in registro)
+            {
+                WriteLine(r);
+            }
+            WriteLine("==============================================");
         }
     }
 }

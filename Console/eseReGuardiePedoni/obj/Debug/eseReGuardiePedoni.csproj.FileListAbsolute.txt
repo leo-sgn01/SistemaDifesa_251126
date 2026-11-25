@@ -6,3 +6,11 @@ C:\Users\signo\Desktop\Scuola\ClasseQuarta\Informatica\C#\eseAvalonia7_console_2
 C:\Users\signo\Desktop\Scuola\ClasseQuarta\Informatica\C#\eseAvalonia7_console_251126\eseReGuardiePedoni\obj\Debug\eseReGuardiePedoni.exe
 C:\Users\signo\Desktop\Scuola\ClasseQuarta\Informatica\C#\eseAvalonia7_console_251126\eseReGuardiePedoni\obj\Debug\eseReGuardiePedoni.pdb
 C:\Users\signo\Desktop\Scuola\ClasseQuarta\Informatica\C#\eseAvalonia7_console_251126\eseReGuardiePedoni\bin\Debug\commands.txt
+C:\Users\signo\Desktop\Scuola\ClasseQuarta\Informatica\cartellaGithub\EsercizioReGuardiePedoni\Console\eseReGuardiePedoni\obj\Debug\eseReGuardiePedoni.csproj.AssemblyReference.cache
+C:\Users\signo\Desktop\Scuola\ClasseQuarta\Informatica\cartellaGithub\EsercizioReGuardiePedoni\Console\eseReGuardiePedoni\obj\Debug\eseReGuardiePedoni.csproj.CoreCompileInputs.cache
+C:\Users\signo\Desktop\Scuola\ClasseQuarta\Informatica\cartellaGithub\EsercizioReGuardiePedoni\Console\eseReGuardiePedoni\obj\Debug\eseReGuardiePedoni.exe
+C:\Users\signo\Desktop\Scuola\ClasseQuarta\Informatica\cartellaGithub\EsercizioReGuardiePedoni\Console\eseReGuardiePedoni\obj\Debug\eseReGuardiePedoni.pdb
+C:\Users\signo\Desktop\Scuola\ClasseQuarta\Informatica\cartellaGithub\EsercizioReGuardiePedoni\Console\eseReGuardiePedoni\bin\Debug\commands.txt
+C:\Users\signo\Desktop\Scuola\ClasseQuarta\Informatica\cartellaGithub\EsercizioReGuardiePedoni\Console\eseReGuardiePedoni\bin\Debug\eseReGuardiePedoni.exe.config
+C:\Users\signo\Desktop\Scuola\ClasseQuarta\Informatica\cartellaGithub\EsercizioReGuardiePedoni\Console\eseReGuardiePedoni\bin\Debug\eseReGuardiePedoni.exe
+C:\Users\signo\Desktop\Scuola\ClasseQuarta\Informatica\cartellaGithub\EsercizioReGuardiePedoni\Console\eseReGuardiePedoni\bin\Debug\eseReGuardiePedoni.pdb

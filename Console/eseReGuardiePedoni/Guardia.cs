@@ -13,7 +13,6 @@ namespace eseReGuardiePedoni
         public Guardia(string n)
         {
             this.nome = n;
-            this.catturata = false;
         }
 
         public string Attacco()
